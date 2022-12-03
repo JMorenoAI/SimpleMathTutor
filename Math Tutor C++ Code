@@ -1,0 +1,227 @@
+/****************************************
+Name........: Math Tutor
+Programmer..: Joshua Moreno
+Date........: 9/21/2022
+repl.it URL.: https://replit.com/@jmoreno01/Chapter5MathTutor#main.cpp
+Description.: A Program for solving math problems, including addition,
+suntraction, multiplication, and division. Enter your answer to see if you are
+correct, otherwise, display the correct answer. Furthermore, users can see the
+list of questions they got right, while show the user's number of attempts
+
+******************************************/
+
+#include <cctype>   // Character handling functions
+#include <cstdlib>  //  used for srand rand
+#include <ctime>    // used for time
+#include <iomanip>  // used to set basefield flag
+#include <iostream> // couts and cins
+#include <limits>   // used for numeric limits
+#include <string>   // used for string
+#include <vector>   // used for 2d vector
+
+using namespace std;
+
+int main() {
+  enum MathTypes {
+    MT_ADD,
+    MT_SUBTRACT,
+    MT_DIVIDE,
+    MT_MULTIPLY
+  };               // enum for the math types
+  int leftNum = 0; // random number between 1 - 10 that will be displayed on the
+                   // left side of the math question
+  int mathType = 0;    // random number between 0 - 3 [0=addition, 1= ]
+  int temp = 0;        // used when flip between leftNum and rightNum
+  int rightNum = 0;    // random number between 1 - 10 that will be displayed on
+                       // the right side of the math question
+  int mathResults = 0; // display the math question results
+  char mathOp = '+';
+
+  string userCont = "y"; // ask if users want more math questions
+
+  string userName = "";   // input for user's name
+  int userAnswer = 0;     // input user's answer
+  int MAX_ATTEMPTS = 3;   // how many attempts are there //DEBBIE: have to set
+                          // this to 3 here because it can never be changed
+  int totalCorrected = 0; // how many you got right
+
+  int totalQuestions = 0; // the total number of questions
+  int totalPercent = 0;   // the percent of questions you got right
+  int attempts = 0;       // calculate the number of attempts
+
+  vector<vector<int>> mathQuestions;
+
+  // seed random method with the current system time, don't forget the two new
+  // include
+
+  // display the program's title
+  cout << "+--------------------------------------+" << endl;
+  cout << "|               Math Tutor             |" << endl;
+  cout << "+--------------------------------------+" << endl;
+  cout << endl;
+
+  // get the user's name
+  cout << "Please enter your first name: ";
+  getline(cin, userName);
+  cout << "Welcome " << userName << "!" << endl;
+  cout << endl;
+
+  // set the value for the left and right number
+
+  srand(time(0));
+
+  while (userCont == "y" ||
+         userCont == "yes") { // when user decides to want more math questions
+    totalQuestions++;
+
+    leftNum = rand() % 10 + 1; // generating random numbers
+    rightNum = rand() % 10 + 1;
+
+    mathType = rand() % 4; // Math operators
+
+    // make sure the left number is larger than the right number
+    if (leftNum < rightNum) {
+      temp = leftNum;
+      leftNum = rightNum;
+      rightNum = temp;
+    }
+
+    switch (mathType) { // 1=Add, 2=Sub
+    case MT_ADD:        // addition
+      mathOp = '+';
+      mathResults = leftNum + rightNum;
+      break;
+    case MT_SUBTRACT: // suntraction
+      mathOp = '-';
+      mathResults = leftNum - rightNum;
+      break;
+    case MT_MULTIPLY: // multiplication
+      mathOp = '*';
+      mathResults = leftNum * rightNum;
+      break;
+    case MT_DIVIDE:          // division
+      mathResults = leftNum; //
+      leftNum = leftNum * rightNum;
+      mathOp = '/';
+      break;
+    default:
+
+      cout << "Invalid input" << mathOp << endl;
+      cout << "Program ended with an error -1" << endl;
+      cout << "Please report this error to Joshua Moreno" << endl;
+
+      return -1;
+    }
+
+    vector<int> row = {leftNum, mathType, rightNum};
+
+    for (int i = 1; i <= MAX_ATTEMPTS; i++) {
+
+      cout << "What is " << leftNum << ' ' << mathOp << ' ' << rightNum << ' '
+           << "?" // Display the math question
+           << endl;
+      // loop until the user enters numeric data
+      while (!(cin >> userAnswer)) {
+        cin.clear(); // clear the error flag on cin
+        // need to include the limits libary to use numeric limits
+        cin.ignore(numeric_limits<streamsize>::max(),
+                   '\n'); // ignore the max input, up to '\n'
+        cout << "Invalid input! please enter a number:: ";
+      } // end of userAnser while loop
+
+      if (userAnswer == mathResults) {
+        totalCorrected++;
+        cout << "Congrats :)" << endl; // shows that if userAnswer is right'
+        row.push_back(i);
+        break;
+      } else {
+        cout << "Incorrect :(, please try again!" << endl;
+        cout << "You have " << MAX_ATTEMPTS - i << " attempts left" << endl;
+
+        if (i == MAX_ATTEMPTS) {
+          cout << "The correct answer is " << mathResults << endl;
+          row.push_back(0);
+        }
+      }
+    } // end of for loop
+
+    mathQuestions.push_back(row);
+
+    while (true) {
+      cout << "Do you want another question? (y = yes, n = no)";
+      cin >> userCont; // user enter whether yes or no
+      for (int i = 0; i < userCont.size(); i++) {
+        userCont.at(i) = tolower(userCont.at(i));
+      }
+
+      if (userCont == "y" || userCont == "yes" || userCont == "n" ||
+          userCont == "no") { // yes n no
+        break;
+
+      } else {
+        cout << "invalid input :(" << endl;
+      } // end of else
+    }   // end of inner while loop
+  }     // end of outer while loop
+
+  // start of Math Tutor Report header
+  cout << "+----------------------------------------------------+" << endl;
+  cout << "|               Math Tutor  Details Report           |" << endl;
+  cout << "+----------------------------------------------------+" << endl;
+  cout << endl;
+  cout << "Questions"
+       << "    "
+       << "Attempts" << endl;
+  cout << "*********"
+       << "    "
+       << "********" << endl; // end of header
+  for (int i = 0; i < mathQuestions.size(); i++) {
+    leftNum = mathQuestions.at(i).at(0);
+    mathType = mathQuestions.at(i).at(1);
+    rightNum = mathQuestions.at(i).at(2);
+    attempts = mathQuestions.at(i).at(3); // collecting data from vectors
+
+    switch (mathType) { // 1=Add, 2=Sub
+    case MT_ADD:        // addition
+      mathOp = '+';
+      mathResults = leftNum + rightNum;
+      break;
+    case MT_SUBTRACT: // suntraction
+      mathOp = '-';
+      mathResults = leftNum - rightNum;
+      break;
+    case MT_MULTIPLY: // multiplication
+      mathOp = '*';
+      mathResults = leftNum * rightNum;
+      break;
+    case MT_DIVIDE: // division
+      mathResults = leftNum / rightNum;
+      mathOp = '/';
+      break;
+    }
+    cout << leftNum << setw(2) << mathOp << setw(2) << rightNum << setw(2)
+         << " = " << setw(2)
+         << mathResults; // display the question and the right answer
+
+    if (attempts == 0) { // if and else statements to display number of attempts
+                         // and if no attempts left - display incorrect
+
+      cout << "  Incorrect" << endl;
+    }
+
+    else {
+      cout << setw(8) << attempts << endl;
+    }
+
+    cout << endl;
+  } // end of for loop
+  totalPercent = (totalCorrected * 100) /
+                 totalQuestions; // generate a grade report to see how many you
+                                 // got right and wrong
+
+  cout << "Correct = " << totalCorrected << endl;
+  cout << "Total questions = " << totalQuestions << endl;
+  cout << "Your grade is" << setw(4) << totalPercent << endl;
+
+  return 0; // clear the answer and reset to 0
+}
